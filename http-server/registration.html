@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WD101 Registration Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body>
+    <form
+      id="user-form"
+      class="max-w-md mx-auto mt-10 border border-gray-300 p-6 shadow-md rounded-md space-y-4"
+    >
+      <h2 class="text-3xl text-center font-bold leading-tight">
+        WD101 Registration Form
+      </h2>
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700"
+          >Name</label
+        >
+        <input
+          required
+          type="text"
+          id="name"
+          name="name"
+          class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700"
+          >Email</label
+        >
+        <input
+          required
+          type="email"
+          id="email"
+          name="email"
+          class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700"
+          >Password</label
+        >
+        <input
+          required
+          type="password"
+          id="password"
+          name="password"
+          class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="dob" class="block text-sm font-medium text-gray-700"
+          >Date of Birth</label
+        >
+        <input
+          required
+          type="date"
+          id="dob"
+          name="dob"
+          min="2000-01-01"
+          max="2010-01-01"
+          class="mt-1 block w-full border border-gray-300 rounded-md p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <input
+          required
+          type="checkbox"
+          id="acceptTerms"
+          name="acceptTerms"
+          class="h-4 w-4 border-gray-300 rounded"
+        />
+        <label for="acceptTerms" class="text-sm text-gray-700"
+          >Accept Terms & Conditions</label
+        >
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+      >
+        Submit
+      </button>
+    </form>
+    <div
+      class="relative max-w-4xl px-6 mt-5 pt-10 pb-8 shadow-md ring-1 ring-gray-900/5 sm:mx-auto sm:rounded-lg sm:px-10"
+    >
+      <div class="mx-auto">
+        <h2 class="text-3xl text-center font-bold leading-tight">Entries</h2>
+        <div class="mt-5" id="user-entries"></div>
+      </div>
+    </div>
+
+    <script>
+      const email = document.getElementById("email");
+      email.addEventListener("input", () => validate(email));
+      function validate(element) {
+        if (element.validity.typeMismatch) {
+          element.setCustomValidity("Please enter a valid email id!");
+          element.reportValidity();
+        } else {
+          element.setCustomValidity("");
+        }
+      }
+
+      const today = new Date();
+      const maxDate = new Date();
+      const minDate = new Date();
+      maxDate.setFullYear(today.getFullYear() - 18);
+      let max = maxDate.toISOString().split("T")[0];
+      minDate.setFullYear(today.getFullYear() - 56);
+      minDate.setDate(minDate.getDate() + 1);
+      let min = minDate.toISOString().split("T")[0];
+      const dob = document.getElementById("dob");
+      dob.setAttribute("max", max);
+      dob.setAttribute("min", min);
+
+      const userForm = document.getElementById("user-form");
+
+      const retrieveEntries = () => {
+        let entries = localStorage.getItem("user-entries");
+        if (entries) {
+          entries = JSON.parse(entries);
+        } else {
+          entries = [];
+        }
+        return entries;
+      };
+
+      let userEntries = retrieveEntries();
+
+      const displayEntries = () => {
+        const entries = retrieveEntries();
+        const tableEntries = entries
+          .map((entry) => {
+            const name = `<td class="border px-4 py-2">${entry.name}</td>`;
+            const email = `<td class="border px-4 py-2">${entry.email}</td>`;
+            const password = `<td class="border px-4 py-2">${entry.password}</td>`;
+            const dob = `<td class="border px-4 py-2">${entry.dob}</td>`;
+            const acceptTerms = `<td class="border px-4 py-2">${entry.acceptTerms}</td>`;
+
+            const row = `<tr>${name} ${email} ${password} ${dob} ${acceptTerms}</tr>`;
+            return row;
+          })
+          .join("\n");
+
+        const table = `<table class="table-auto w-full"<tr>
+    <th class="border px-4 py-2">Name</th>
+    <th class="border px-4 py-2">Email</th>
+    <th class="border px-4 py-2">Password</th>
+    <th class="border px-4 py-2">DOB</th>
+    <th class="border px-4 py-2">Accepted Terms?</th></tr>${tableEntries}</table>`;
+
+        document.getElementById("user-entries").innerHTML = table;
+      };
+
+      const saveForm = (e) => {
+        e.preventDefault();
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const dob = document.getElementById("dob").value;
+        const acceptTerms = document.getElementById("acceptTerms").checked;
+
+        const entry = {
+          name,
+          email,
+          password,
+          dob,
+          acceptTerms,
+        };
+
+        userEntries.push(entry);
+        localStorage.setItem("user-entries", JSON.stringify(userEntries));
+        displayEntries();
+      };
+
+      userForm.addEventListener("submit", saveForm);
+      displayEntries();
+    </script>
+  </body>
+</html>
