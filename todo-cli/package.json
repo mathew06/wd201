@@ -17,9 +17,9 @@
     "prettier": "^3.5.3"
   },
   "lint-staged": {
-  "*.js": [
-    "eslint",
-    "prettier --write ."
-  ]
-  }  
+    "*.js": [
+      "eslint",
+      "prettier --write ."
+    ]
+  }
 }
