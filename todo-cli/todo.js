@@ -1,5 +1,7 @@
 const todoList = () => {
-  all = [];
+  let all = [];
+  const today = new Date().toISOString().split("T")[0];
+
   const add = (todoItem) => {
     all.push(todoItem);
   };
@@ -9,7 +11,7 @@ const todoList = () => {
 
   const overdue = () => {
     return all.filter(
-      (todo) => todo.dueDate < today && todo.completed === false
+      (todo) => todo.dueDate < today && todo.completed === false,
     );
   };
 
@@ -25,12 +27,12 @@ const todoList = () => {
     let result = "";
     if (list[0].dueDate === today) {
       result = list.map(
-        (todo) => `${todo.completed ? "[x]" : "[ ]"} ${todo.title}`
+        (todo) => `${todo.completed ? "[x]" : "[ ]"} ${todo.title}`,
       );
     } else {
       result = list.map(
         (todo) =>
-          `${todo.completed ? "[x]" : "[ ]"} ${todo.title} ${todo.dueDate}`
+          `${todo.completed ? "[x]" : "[ ]"} ${todo.title} ${todo.dueDate}`,
       );
     }
     return result.join("\n");
