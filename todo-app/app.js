@@ -10,8 +10,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/todos", async (req, res) => {
+  console.log("Processing list of all Todos ...");
   const todos = await Todo.findAll();
-  return res.json(todos);
+  return res.send(todos);
 });
 
 app.post("/todos", async (req, res) => {
@@ -37,6 +38,21 @@ app.put("/todos/:id/markAsCompleted", async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(422).json(error);
+  }
+});
+
+app.delete("/todos/:id", async function (req, res) {
+  console.log("We have to delete a Todo with ID: ", req.params.id);
+  try {
+    const deletedTodo = await Todo.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+    return res.send(deletedTodo === 1);
+  } catch (error) {
+    console.error(error);
+    return res.status(404).json(error);
   }
 });
 
