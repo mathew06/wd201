@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 
     static async overdue() {
       try {
-        const overdueTodos = await Todo.findAll({
+        const overdueTodos = await this.findAll({
           where: {
             dueDate: {
               [Op.lt]: new Date(),
@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
 
     static async dueToday() {
       try {
-        const dueTodayTodos = await Todo.findAll({
+        const dueTodayTodos = await this.findAll({
           where: {
             dueDate: {
               [Op.eq]: new Date(),
@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
 
     static async dueLater() {
       try {
-        const dueLaterTodos = await Todo.findAll({
+        const dueLaterTodos = await this.findAll({
           where: {
             dueDate: {
               [Op.gt]: new Date(),
@@ -66,6 +66,14 @@ module.exports = (sequelize, DataTypes) => {
       } catch (error) {
         console.error("Error fetching dueLater todos:", error);
       }
+    }
+
+    static async remove(id) {
+      return this.destroy({
+        where: {
+          id,
+        },
+      });
     }
 
     markAsCompleted() {
