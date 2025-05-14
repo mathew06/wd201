@@ -5,6 +5,7 @@ const path = require("path");
 
 const app = express();
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
 // eslint-disable-next-line no-undef
@@ -34,11 +35,11 @@ app.get("/todos", async (req, res) => {
 app.post("/todos", async (req, res) => {
   try {
     console.log("Creating a todo", req.body);
-    const todo = await Todo.addTodo({
+    await Todo.addTodo({
       title: req.body.title,
       dueDate: req.body.dueDate,
     });
-    return res.json(todo);
+    return res.redirect("/");
   } catch (error) {
     console.error(error);
     return res.status(422).json(error);
