@@ -1,6 +1,6 @@
 /* eslint-disable */
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Todo extends Model {
     /**
@@ -18,6 +18,54 @@ module.exports = (sequelize, DataTypes) => {
 
     static getTodos() {
       return this.findAll();
+    }
+
+    static async overdue() {
+      try {
+        const overdueTodos = await Todo.findAll({
+          where: {
+            dueDate: {
+              [Op.lt]: new Date(),
+            },
+          },
+          order: [["id", "ASC"]],
+        });
+        return overdueTodos;
+      } catch (error) {
+        console.error("Error fetching overdue todos:", error);
+      }
+    }
+
+    static async dueToday() {
+      try {
+        const dueTodayTodos = await Todo.findAll({
+          where: {
+            dueDate: {
+              [Op.eq]: new Date(),
+            },
+          },
+          order: [["id", "ASC"]],
+        });
+        return dueTodayTodos;
+      } catch (error) {
+        console.error("Error fetching dueToday todos:", error);
+      }
+    }
+
+    static async dueLater() {
+      try {
+        const dueLaterTodos = await Todo.findAll({
+          where: {
+            dueDate: {
+              [Op.gt]: new Date(),
+            },
+          },
+          order: [["id", "ASC"]],
+        });
+        return dueLaterTodos;
+      } catch (error) {
+        console.error("Error fetching dueLater todos:", error);
+      }
     }
 
     markAsCompleted() {
