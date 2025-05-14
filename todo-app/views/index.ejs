@@ -6,6 +6,20 @@
     <title>Todo App</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="./css/styles.css" />
+    <script>
+      function updateTodo(id) {
+        fetch(`/todos/${id}/markAsCompleted`, {
+          method: "put",
+          headers: {"Content-Type":"application/json"}
+        })
+          .then((res) => {
+            if(res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+    </script>
   </head>
   <body>
     <div class="grid grid-cols-6">
@@ -40,7 +54,9 @@
             </div>
           </div>
         </form>
-        <%- include('todos.ejs') %>
+        <%- include('todo.ejs', {title: "Overdue", data: overdue}) %>
+        <%- include('todo.ejs', {title: "Due Today", data: dueToday}) %>
+        <%- include('todo.ejs', {title: "Due Later", data: dueLater}) %>
       </div>
     </div>
   </body>
