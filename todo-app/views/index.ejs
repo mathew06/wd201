@@ -4,10 +4,41 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-    <%- include('header.ejs') %> <%- include('todos.ejs') %>
-    <%-include('footer.ejs') %>
+    <div class="grid grid-cols-6">
+      <div class="col-start-3 col-span-2 py-2">
+        <%- include('header.ejs') %>
+        <form action="">
+          <div class="flex gap-2 py-3">
+            <div class="flex-auto">
+              <input
+                type="text"
+                placeholder="Do task"
+                required
+                class="border border-gray-300 rounded text-gray-900 text-sm w-full p-2"
+              />
+            </div>
+            <div class="flex-auto">
+              <input
+                type="date"
+                class="border border-gray-300 rounded text-gray-900 text-sm w-full p-2"
+              />
+            </div>
+            <div class="flex-none">
+              <button
+                type="submit"
+                class="bg-green-600 text-white font-medium px-5 py-1.5 rounded mr-2 mb-2"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </form>
+        <%- include('todos.ejs') %>
+      </div>
+    </div>
   </body>
 </html>
