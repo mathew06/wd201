@@ -1,7 +1,7 @@
 <div>
     <div class="flex items-center mt-4">
         <h5 class="font-semibold text-gray-600">Overdue</h5>
-        <label class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= overdue.length %></label>
+        <label id="count-overdue" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= overdue.length %></label>
     </div>
         <ul class="list-none">
             <% for (var i = 0; i < overdue.length; i++) { %>
@@ -41,7 +41,7 @@
         </ul>
     <div class="flex items-center mt-4">
         <h5 class="font-semibold text-gray-600">Due Today</h5>
-        <label class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= dueToday.length %></label>
+        <label id="count-due-today" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= dueToday.length %></label>
     </div>
         <ul class="list-none">
             <% for (var i = 0; i < dueToday.length; i++) { %>
@@ -81,7 +81,7 @@
         </ul>
     <div class="flex items-center mt-4">
         <h5 class="font-semibold text-gray-600">Due Later</h5>
-        <label class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= dueLater.length %></label>
+        <label id="count-due-later" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= dueLater.length %></label>
     </div>
         <ul class="list-none">
             <% for (var i = 0; i < dueLater.length; i++) { %>
