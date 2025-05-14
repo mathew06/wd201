@@ -1,17 +1,29 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { Todo } = require("./models");
+const path = require("path");
 
 const app = express();
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.set("view engine", "ejs");
+// eslint-disable-next-line no-undef
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", async (req, res) => {
+  const allTodos = await Todo.getTodos();
+  if (req.accepts("html")) {
+    res.render("index", {
+      allTodos,
+    });
+  } else {
+    res.json(allTodos);
+  }
 });
 
 app.get("/todos", async (req, res) => {
   console.log("Processing list of all Todos ...");
-  const todos = await Todo.findAll();
+  const todos = await Todo.getTodos();
   return res.send(todos);
 });
 
