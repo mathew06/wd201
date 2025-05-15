@@ -9,11 +9,11 @@
     <link rel="stylesheet" href="./css/styles.css" />
     <script>
       var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-      function updateTodo(id) {
-        fetch(`/todos/${id}/markAsCompleted`, {
+      function updateTodo(id, completed) {
+        fetch(`/todos/${id}`, {
           method: "put",
           headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ "_csrf": token})
+          body: JSON.stringify({ "_csrf": token, "completed": !completed})
         })
           .then((res) => {
             if(res.ok) {
@@ -74,6 +74,7 @@
         <%- include('todo.ejs', {title: "Overdue", data: overdue}) %>
         <%- include('todo.ejs', {title: "Due Today", data: dueToday}) %>
         <%- include('todo.ejs', {title: "Due Later", data: dueLater}) %>
+        <%- include('todo.ejs', {title: "Completed Items", data: completed}) %>
       </div>
     </div>
   </body>

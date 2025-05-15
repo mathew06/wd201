@@ -24,9 +24,16 @@ module.exports = (sequelize, DataTypes) => {
       try {
         const overdueTodos = await this.findAll({
           where: {
-            dueDate: {
-              [Op.lt]: new Date(),
-            },
+            [Op.and]: [
+              {
+                dueDate: {
+                  [Op.lt]: new Date(),
+                },
+              },
+              {
+                completed: false,
+              },
+            ],
           },
           order: [["id", "ASC"]],
         });
@@ -40,9 +47,16 @@ module.exports = (sequelize, DataTypes) => {
       try {
         const dueTodayTodos = await this.findAll({
           where: {
-            dueDate: {
-              [Op.eq]: new Date(),
-            },
+            [Op.and]: [
+              {
+                dueDate: {
+                  [Op.eq]: new Date(),
+                },
+              },
+              {
+                completed: false,
+              },
+            ],
           },
           order: [["id", "ASC"]],
         });
@@ -56,15 +70,36 @@ module.exports = (sequelize, DataTypes) => {
       try {
         const dueLaterTodos = await this.findAll({
           where: {
-            dueDate: {
-              [Op.gt]: new Date(),
-            },
+            [Op.and]: [
+              {
+                dueDate: {
+                  [Op.gt]: new Date(),
+                },
+              },
+              {
+                completed: false,
+              },
+            ],
           },
           order: [["id", "ASC"]],
         });
         return dueLaterTodos;
       } catch (error) {
         console.error("Error fetching dueLater todos:", error);
+      }
+    }
+
+    static async completed() {
+      try {
+        const completedTodos = await this.findAll({
+          where: {
+            completed: true,
+          },
+          order: [["id", "ASC"]],
+        });
+        return completedTodos;
+      } catch (error) {
+        console.error("Error fetching completed todos:", error);
       }
     }
 
@@ -76,8 +111,8 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    markAsCompleted() {
-      return this.update({ completed: true });
+    setCompletionStatus(completed) {
+      return this.update({ completed: completed });
     }
   }
   Todo.init(

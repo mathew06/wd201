@@ -19,15 +19,17 @@ app.get("/", async (req, res) => {
   const overdue = await Todo.overdue();
   const dueToday = await Todo.dueToday();
   const dueLater = await Todo.dueLater();
+  const completed = await Todo.completed();
   if (req.accepts("html")) {
     res.render("index", {
       overdue,
       dueToday,
       dueLater,
+      completed,
       csrfToken: req.csrfToken(),
     });
   } else {
-    res.json({ overdue, dueToday, dueLater });
+    res.json({ overdue, dueToday, dueLater, completed });
   }
 });
 
@@ -51,11 +53,12 @@ app.post("/todos", async (req, res) => {
   }
 });
 
-app.put("/todos/:id/markAsCompleted", async (req, res) => {
-  console.log("Marking task as completed of id", req.params.id);
+app.put("/todos/:id", async (req, res) => {
+  console.log("Changing completion status of task with id", req.params.id);
   try {
     const todo = await Todo.findByPk(req.params.id);
-    const updatedTodo = await todo.markAsCompleted();
+    const updatedTodo = await todo.setCompletionStatus(req.body.completed);
+    console.log(`id: ${updatedTodo.id}, completed: ${updatedTodo.completed}`);
     return res.json(updatedTodo);
   } catch (error) {
     console.error(error);

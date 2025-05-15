@@ -1,7 +1,7 @@
 <div>
     <div class="flex items-center mt-4">
         <h5 class="font-semibold text-gray-600"><%= title %></h5>
-        <label id="count-<%= title.replace(/\s/g, '-').toLowerCase() %>" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-700"><%= data.length %></label>
+        <label id="count-<%= title==='Completed Items' ? 'completed' : title.replace(/\s/g, '-').toLowerCase() %>" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-700"><%= data.length %></label>
     </div>
         <ul class="list-none">
             <% for (var i = 0; i < data.length; i++) { %>
@@ -13,7 +13,7 @@
                         type="checkbox"
                         id="todo-checkbox-<%= data[i].id %>"
                         <%= data[i].completed ? "checked" : "" %>
-                        onclick="updateTodo(<%= data[i].id %>)"
+                        onclick="updateTodo(<%= data[i].id %>, <%= data[i].completed %>)"
                         class="text-blue-600 bg-gray-100 rounded border-gray-300"
                         />
                         <label
