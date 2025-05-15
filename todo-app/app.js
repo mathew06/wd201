@@ -1,11 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const csrf = require("tiny-csrf");
+const cookieParser = require("cookie-parser");
 const { Todo } = require("./models");
 const path = require("path");
 
 const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser("secret_string"));
+app.use(csrf("thirtytwo_character_secretstring", ["POST", "PUT", "DELETE"]));
 
 app.set("view engine", "ejs");
 // eslint-disable-next-line no-undef
@@ -20,6 +24,7 @@ app.get("/", async (req, res) => {
       overdue,
       dueToday,
       dueLater,
+      csrfToken: req.csrfToken(),
     });
   } else {
     res.json({ overdue, dueToday, dueLater });
