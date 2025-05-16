@@ -4,6 +4,11 @@ const csrf = require("tiny-csrf");
 const cookieParser = require("cookie-parser");
 const { Todo, User } = require("./models");
 const path = require("path");
+const passport = require("passport");
+const connectEnsureLogin = require("connect-ensure-login");
+const session = require("express-session");
+const LocalStrategy = require("passport-local");
+const { error } = require("console");
 
 const app = express();
 app.use(bodyParser.json());
@@ -11,26 +16,55 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("secret_string"));
 app.use(csrf("thirtytwo_character_secretstring", ["POST", "PUT", "DELETE"]));
 
+app.use(
+  session({
+    secret: "todo-session-secret-key",
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  }),
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    (username, password, done) => {
+      User.findOne({
+        where: { email: username, password: password },
+      })
+        .then((user) => {
+          return done(null, user);
+        })
+        .catch((error) => {
+          return error;
+        });
+    },
+  ),
+);
+
+passport.serializeUser((user, done) => {
+  console.log("Serializing user in session", user.id);
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findByPk(id)
+    .then((user) => done(null, user))
+    .catch((error) => done(error, null));
+});
+
 app.set("view engine", "ejs");
 // eslint-disable-next-line no-undef
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", async (req, res) => {
-  const overdue = await Todo.overdue();
-  const dueToday = await Todo.dueToday();
-  const dueLater = await Todo.dueLater();
-  const completed = await Todo.completed();
-  if (req.accepts("html")) {
-    res.render("index", {
-      overdue,
-      dueToday,
-      dueLater,
-      completed,
-      csrfToken: req.csrfToken(),
-    });
-  } else {
-    res.json({ overdue, dueToday, dueLater, completed });
-  }
+app.get("/", (req, res) => {
+  res.render("index", { csrfToken: req.csrfToken() });
 });
 
 app.get("/signup", (req, res) => {
@@ -45,17 +79,33 @@ app.post("/users", async (req, res) => {
       email: req.body.email,
       password: req.body.password,
     });
-    console.log(user);
-    res.redirect("/");
+    req.login(user, (err) => {
+      if (err) {
+        console.error(error);
+      }
+      res.redirect("/todos");
+    });
   } catch (error) {
     console.error(error);
   }
 });
 
-app.get("/todos", async (req, res) => {
-  console.log("Processing list of all Todos ...");
-  const todos = await Todo.getTodos();
-  return res.send(todos);
+app.get("/todos", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+  const overdue = await Todo.overdue();
+  const dueToday = await Todo.dueToday();
+  const dueLater = await Todo.dueLater();
+  const completed = await Todo.completed();
+  if (req.accepts("html")) {
+    res.render("todos", {
+      overdue,
+      dueToday,
+      dueLater,
+      completed,
+      csrfToken: req.csrfToken(),
+    });
+  } else {
+    res.json({ overdue, dueToday, dueLater, completed });
+  }
 });
 
 app.post("/todos", async (req, res) => {
