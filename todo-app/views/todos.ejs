@@ -1,122 +1,81 @@
-<div>
-    <div class="flex items-center mt-4">
-        <h5 class="font-semibold text-gray-600">Overdue</h5>
-        <label id="count-overdue" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= overdue.length %></label>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title>Todo App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script>
+      var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      function updateTodo(id, completed) {
+        fetch(`/todos/${id}`, {
+          method: "put",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ "_csrf": token, "completed": !completed})
+        })
+          .then((res) => {
+            if(res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+      function deleteTodo(id) {
+        fetch(`/todos/${id}`, {
+          method: "delete",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ "_csrf": token})
+        })
+          .then((res) => {
+            if(res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+    </script>
+  </head>
+  <body>
+    <div class="grid grid-cols-6">
+      <div class="col-start-3 col-span-2 py-2">
+        <%- include('header.ejs') %>
+        <form action="/todos" method="post">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="flex gap-2 py-3">
+            <div class="flex-auto">
+              <input
+                type="text"
+                name="title"
+                placeholder="Do task"
+                required
+                class="border border-gray-300 rounded text-gray-900 text-sm w-full p-2"
+              />
+            </div>
+            <div class="flex-auto">
+              <input
+                type="date"
+                name="dueDate"
+                required
+                class="border border-gray-300 rounded text-gray-900 text-sm w-full p-2"
+              />
+            </div>
+            <div class="flex-none">
+              <button
+                type="submit"
+                class="bg-green-600 text-white font-medium px-5 py-1.5 rounded mr-2 mb-2 cursor-pointer"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </form>
+        <%- include('todo.ejs', {title: "Overdue", data: overdue}) %>
+        <%- include('todo.ejs', {title: "Due Today", data: dueToday}) %>
+        <%- include('todo.ejs', {title: "Due Later", data: dueLater}) %>
+        <%- include('todo.ejs', {title: "Completed Items", data: completed}) %>
+      </div>
     </div>
-        <ul class="list-none">
-            <% for (var i = 0; i < overdue.length; i++) { %>
-                <li class="Todo-Item">
-                    <div
-                        class="flex items-center w-fit my-2 px-2 py-1 rounded hover:bg-green-100"
-                    >
-                        <input
-                        type="checkbox"
-                        id="todo-checkbox-<%= overdue[i].id %>"
-                        class="text-blue-600 bg-gray-100 rounded border-gray-300"
-                        />
-                        <label
-                            for="todo-checkbox-<%= overdue[i].id %>"
-                            class="ml-2 text-sm text-gray-600 cursor-pointer"
-                            ><%= overdue[i].title %></label
-                        >
-                        <a href="#" class="hidden ml-2 trash-icon"
-                        > <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="size-4"
-                            >
-                            <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                            />
-                        </svg>
-                        </a>
-                    </div>
-                </li>
-            <% } %>
-        </ul>
-    <div class="flex items-center mt-4">
-        <h5 class="font-semibold text-gray-600">Due Today</h5>
-        <label id="count-due-today" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= dueToday.length %></label>
-    </div>
-        <ul class="list-none">
-            <% for (var i = 0; i < dueToday.length; i++) { %>
-                <li class="Todo-Item">
-                    <div
-                        class="flex items-center w-fit my-2 px-2 py-1 rounded hover:bg-green-100"
-                    >
-                        <input
-                        type="checkbox"
-                        id="todo-checkbox-<%= dueToday[i].id %>"
-                        class="text-blue-600 bg-gray-100 rounded border-gray-300"
-                        />
-                        <label
-                            for="todo-checkbox-<%= dueToday[i].id %>"
-                            class="ml-2 text-sm text-gray-600 cursor-pointer"
-                            ><%= dueToday[i].title %></label
-                        >
-                        <a href="#" class="hidden ml-2 trash-icon"
-                        > <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="size-4"
-                            >
-                            <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                            />
-                        </svg>
-                        </a>
-                    </div>
-                </li>
-            <% } %>
-        </ul>
-    <div class="flex items-center mt-4">
-        <h5 class="font-semibold text-gray-600">Due Later</h5>
-        <label id="count-due-later" class="ml-2 w-8 h-6 rounded bg-gray-200 font-semibold text-center text-gray-600"><%= dueLater.length %></label>
-    </div>
-        <ul class="list-none">
-            <% for (var i = 0; i < dueLater.length; i++) { %>
-                <li class="Todo-Item">
-                    <div
-                        class="flex items-center w-fit my-2 px-2 py-1 rounded hover:bg-green-100"
-                    >
-                        <input
-                        type="checkbox"
-                        id="todo-checkbox-<%= dueLater[i].id %>"
-                        class="text-blue-600 bg-gray-100 rounded border-gray-300"
-                        />
-                        <label
-                            for="todo-checkbox-<%= dueLater[i].id %>"
-                            class="ml-2 text-sm text-gray-600 cursor-pointer"
-                            ><%= dueLater[i].title %></label
-                        >
-                        <a href="#" class="hidden ml-2 trash-icon"
-                        > <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="size-4"
-                            >
-                            <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                            />
-                        </svg>
-                        </a>
-                    </div>
-                </li>
-            <% } %>
-        </ul>
-</div>
+  </body>
+</html>
