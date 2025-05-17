@@ -38,10 +38,15 @@ passport.use(
     },
     (username, password, done) => {
       User.findOne({
-        where: { email: username, password: password },
+        where: { email: username },
       })
-        .then((user) => {
-          return done(null, user);
+        .then(async (user) => {
+          const result = await bcrypt.compare(password, user.password);
+          if (result) {
+            return done(null, user);
+          } else {
+            return done("Invalid password");
+          }
         })
         .catch((error) => {
           return error;
@@ -72,6 +77,19 @@ app.get("/", (req, res) => {
 app.get("/signup", (req, res) => {
   res.render("signup", { csrfToken: req.csrfToken() });
 });
+
+app.get("/login", (req, res) => {
+  res.render("login", { csrfToken: req.csrfToken() });
+});
+
+app.post(
+  "/session",
+  passport.authenticate("local", { failureRedirect: "/login" }),
+  (req, res) => {
+    console.log(req.user);
+    res.redirect("/todos");
+  },
+);
 
 app.post("/users", async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
