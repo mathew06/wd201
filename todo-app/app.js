@@ -82,6 +82,15 @@ app.get("/login", (req, res) => {
   res.render("login", { csrfToken: req.csrfToken() });
 });
 
+app.get("/signout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
 app.post(
   "/session",
   passport.authenticate("local", { failureRedirect: "/login" }),
@@ -129,7 +138,7 @@ app.get("/todos", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   }
 });
 
-app.post("/todos", async (req, res) => {
+app.post("/todos", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
     console.log("Creating a todo", req.body);
     await Todo.addTodo({
@@ -143,7 +152,7 @@ app.post("/todos", async (req, res) => {
   }
 });
 
-app.put("/todos/:id", async (req, res) => {
+app.put("/todos/:id", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   console.log("Changing completion status of task with id", req.params.id);
   try {
     const todo = await Todo.findByPk(req.params.id);
@@ -156,15 +165,19 @@ app.put("/todos/:id", async (req, res) => {
   }
 });
 
-app.delete("/todos/:id", async (req, res) => {
-  console.log("We have to delete a Todo with ID: ", req.params.id);
-  try {
-    await Todo.remove(req.params.id);
-    return res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    return res.status(422).json(error);
-  }
-});
+app.delete(
+  "/todos/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log("We have to delete a Todo with ID: ", req.params.id);
+    try {
+      await Todo.remove(req.params.id);
+      return res.json({ success: true });
+    } catch (error) {
+      console.error(error);
+      return res.status(422).json(error);
+    }
+  },
+);
 
 module.exports = app;
