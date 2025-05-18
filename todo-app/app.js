@@ -121,10 +121,11 @@ app.post("/users", async (req, res) => {
 });
 
 app.get("/todos", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
-  const overdue = await Todo.overdue();
-  const dueToday = await Todo.dueToday();
-  const dueLater = await Todo.dueLater();
-  const completed = await Todo.completed();
+  const loggedInUserId = req.user.id;
+  const overdue = await Todo.overdue(loggedInUserId);
+  const dueToday = await Todo.dueToday(loggedInUserId);
+  const dueLater = await Todo.dueLater(loggedInUserId);
+  const completed = await Todo.completed(loggedInUserId);
   if (req.accepts("html")) {
     res.render("todos", {
       overdue,
@@ -144,8 +145,9 @@ app.post("/todos", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     await Todo.addTodo({
       title: req.body.title,
       dueDate: req.body.dueDate,
+      userId: req.user.id,
     });
-    return res.redirect("/");
+    return res.redirect("/todos");
   } catch (error) {
     console.error(error);
     return res.status(422).json(error);
@@ -171,7 +173,7 @@ app.delete(
   async (req, res) => {
     console.log("We have to delete a Todo with ID: ", req.params.id);
     try {
-      await Todo.remove(req.params.id);
+      await Todo.remove(req.params.id, req.user.id);
       return res.json({ success: true });
     } catch (error) {
       console.error(error);

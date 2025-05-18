@@ -13,28 +13,28 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static addTodo({ title, dueDate }) {
-      return this.create({ title: title, dueDate: dueDate, completed: false });
+    static addTodo({ title, dueDate, userId }) {
+      return this.create({
+        title: title,
+        dueDate: dueDate,
+        completed: false,
+        userId,
+      });
     }
 
     static getTodos() {
       return this.findAll();
     }
 
-    static async overdue() {
+    static async overdue(userId) {
       try {
         const overdueTodos = await this.findAll({
           where: {
-            [Op.and]: [
-              {
-                dueDate: {
-                  [Op.lt]: new Date(),
-                },
-              },
-              {
-                completed: false,
-              },
-            ],
+            userId,
+            dueDate: {
+              [Op.lt]: new Date(),
+            },
+            completed: false,
           },
           order: [["id", "ASC"]],
         });
@@ -44,20 +44,15 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
 
-    static async dueToday() {
+    static async dueToday(userId) {
       try {
         const dueTodayTodos = await this.findAll({
           where: {
-            [Op.and]: [
-              {
-                dueDate: {
-                  [Op.eq]: new Date(),
-                },
-              },
-              {
-                completed: false,
-              },
-            ],
+            userId,
+            dueDate: {
+              [Op.eq]: new Date(),
+            },
+            completed: false,
           },
           order: [["id", "ASC"]],
         });
@@ -67,20 +62,15 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
 
-    static async dueLater() {
+    static async dueLater(userId) {
       try {
         const dueLaterTodos = await this.findAll({
           where: {
-            [Op.and]: [
-              {
-                dueDate: {
-                  [Op.gt]: new Date(),
-                },
-              },
-              {
-                completed: false,
-              },
-            ],
+            userId,
+            dueDate: {
+              [Op.gt]: new Date(),
+            },
+            completed: false,
           },
           order: [["id", "ASC"]],
         });
@@ -90,10 +80,11 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
 
-    static async completed() {
+    static async completed(userId) {
       try {
         const completedTodos = await this.findAll({
           where: {
+            userId,
             completed: true,
           },
           order: [["id", "ASC"]],
@@ -104,10 +95,11 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
 
-    static async remove(id) {
+    static async remove(id, userId) {
       return this.destroy({
         where: {
           id,
+          userId,
         },
       });
     }
