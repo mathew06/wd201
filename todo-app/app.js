@@ -80,6 +80,9 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.redirect("/todos");
+  }
   res.render("index", { csrfToken: req.csrfToken() });
 });
 
