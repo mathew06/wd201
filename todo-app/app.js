@@ -9,6 +9,7 @@ const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
+const flash = require("connect-flash");
 
 const saltRounds = 10;
 
@@ -45,7 +46,7 @@ passport.use(
           if (result) {
             return done(null, user);
           } else {
-            return done("Invalid password");
+            return done(null, false, { message: "Invalid password" });
           }
         })
         .catch((error) => {
@@ -69,6 +70,14 @@ passport.deserializeUser((id, done) => {
 app.set("view engine", "ejs");
 // eslint-disable-next-line no-undef
 app.use(express.static(path.join(__dirname, "public")));
+// eslint-disable-next-line no-undef
+app.set("views", path.join(__dirname, "views"));
+
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  next();
+});
 
 app.get("/", (req, res) => {
   res.render("index", { csrfToken: req.csrfToken() });
@@ -93,7 +102,10 @@ app.get("/signout", (req, res, next) => {
 
 app.post(
   "/session",
-  passport.authenticate("local", { failureRedirect: "/login" }),
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
   (req, res) => {
     console.log(req.user);
     res.redirect("/todos");
@@ -101,6 +113,10 @@ app.post(
 );
 
 app.post("/users", async (req, res) => {
+  if (!req.body.firstName || !req.body.email || !req.body.password) {
+    req.flash("error", "First name, email and password are required");
+    return res.redirect("/signup");
+  }
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   try {
     const user = await User.create({
@@ -142,11 +158,16 @@ app.get("/todos", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
 app.post("/todos", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
     console.log("Creating a todo", req.body);
+    if (!req.body.title || !req.body.dueDate) {
+      req.flash("error", "Title and due date are required");
+      return res.redirect("/todos");
+    }
     await Todo.addTodo({
       title: req.body.title,
       dueDate: req.body.dueDate,
       userId: req.user.id,
     });
+    req.flash("success", "Todo added successfully");
     return res.redirect("/todos");
   } catch (error) {
     console.error(error);
@@ -174,6 +195,7 @@ app.delete(
     console.log("We have to delete a Todo with ID: ", req.params.id);
     try {
       await Todo.remove(req.params.id, req.user.id);
+      req.flash("success", "Todo deleted successfully");
       return res.json({ success: true });
     } catch (error) {
       console.error(error);

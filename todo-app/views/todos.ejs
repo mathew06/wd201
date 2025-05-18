@@ -50,7 +50,6 @@
                 type="text"
                 name="title"
                 placeholder="Do task"
-                required
                 class="border border-gray-300 rounded text-gray-900 text-sm w-full p-2"
               />
             </div>
@@ -58,7 +57,6 @@
               <input
                 type="date"
                 name="dueDate"
-                required
                 class="border border-gray-300 rounded text-gray-900 text-sm w-full p-2"
               />
             </div>
@@ -72,6 +70,16 @@
             </div>
           </div>
         </form>
+        <% if(messages && messages.success && messages.success.length > 0)  { %>
+          <% for(var i=0; i<messages.success.length; i++) { %>
+            <li class="list-none text-green-600"> <%= messages.success[i] %></li>
+          <% } %>
+        <% } %>
+        <% if(messages && messages.error && messages.error.length > 0)  { %>
+          <% for(var i=0; i<messages.error.length; i++) { %>
+            <li class="list-none text-red-600"> <%= messages.error[i] %></li>
+          <% } %>
+        <% } %>
         <%- include('todo.ejs', {title: "Overdue", data: overdue}) %>
         <%- include('todo.ejs', {title: "Due Today", data: dueToday}) %>
         <%- include('todo.ejs', {title: "Due Later", data: dueLater}) %>
